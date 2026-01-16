@@ -1,0 +1,16 @@
+services:
+  publik-dev:
+    build: .
+    container_name: publik-dev
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Persistance du code source et de l'environnement virtuel
+      - ./data/src:/home/publik/src
+      - ./data/envs:/home/publik/envs
+      - ./data/config:/home/publik/.config
+      # Persistance de la base de données (optionnel mais recommandé)
+      # - ./data/postgres:/var/lib/postgresql
+    tty: true
+    stdin_open: true
