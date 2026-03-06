@@ -44,7 +44,11 @@ if [ ! -f "$MARKER_FILE" ]; then
     cd "$DIR_SRC"
     echo "Running make install..."
     PYTHONUNBUFFERED=1 make install ASKPASS=""
-    
+
+    # Ansible réinstalle systemd, on recrée le mock
+    printf '#!/bin/bash\necho "Mock systemctl: $@"\n' | sudo tee /usr/bin/systemctl > /dev/null
+    sudo chmod +x /usr/bin/systemctl
+
     # On crée le fichier témoin pour ne plus repasser ici
     touch "$MARKER_FILE"
     echo "✅ Installation terminée et marquée."
@@ -54,10 +58,13 @@ fi
 
 # --- 3. DÉMARRAGE DES APPLICATIFS ---
 echo "Starting Supervisord..."
-sudo /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+sudo /usr/bin/supervisord -c /etc/supervisor/supervisord.conf --nodaemon &
+SUPERVISORD_PID=$!
 
-# Attente que les sockets soient prêts
-sleep 5
+# Attente que supervisord soit opérationnel
+echo "Waiting for supervisord..."
+until sudo supervisorctl pid > /dev/null 2>&1; do sleep 1; done
+echo "Supervisord is ready."
 
 # --- 4. DÉPLOIEMENT ---
 if [ ! -f "/home/publik/.deployed" ]; then
@@ -68,6 +75,7 @@ else
     echo "⏩ Tenants déjà déployés."
 fi
 
-# --- 5. LOGS ---
-echo "Services are up. Tailing supervisor logs..."
-sudo tail -f /var/log/supervisor/supervisord.log
+# --- 5. ATTENTE ET PROPAGATION DES SIGNAUX ---
+echo "Services are up."
+trap "sudo kill -TERM $SUPERVISORD_PID" TERM INT
+wait $SUPERVISORD_PID

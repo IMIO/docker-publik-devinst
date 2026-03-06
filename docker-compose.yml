@@ -12,5 +12,6 @@ services:
       - ./data/config:/home/publik/.config
       # Persistance de la base de données (optionnel mais recommandé)
       # - ./data/postgres:/var/lib/postgresql
+    restart: unless-stopped
     tty: true
     stdin_open: true
