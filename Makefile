@@ -1,4 +1,4 @@
-.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle install-passerelle memcached help
+.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle install-passerelle migrate-passerelle memcached help
 
 setup-imio: theme extra-cells fedict fields templatetags memcached
 
@@ -33,6 +33,10 @@ install-passerelle:
 	@test -n "$(repo)" || (echo "Erreur : spécifier un repo, ex: make install-passerelle repo=git@github.com:IMIO/passerelle-imio-xxx.git"; exit 1)
 	./install_passerelle.sh "$(repo)"
 
+migrate-passerelle:
+	@test -n "$(name)" || (echo "Erreur : spécifier un nom, ex: make migrate-passerelle name=liege-taxes"; exit 1)
+	./migrate_passerelle.sh "$(name)"
+
 memcached:
 	docker exec publik-dev sudo service memcached start
 
@@ -48,4 +52,5 @@ help:
 	@echo "  templatetags				- Installe imio-teleservices-templatetags"
 	@echo "  create-passerelle name='mon nom'	- Crée un squelette de connecteur passerelle"
 	@echo "  install-passerelle repo=<url>		- Installe un connecteur existant depuis un repo git"
+	@echo "  migrate-passerelle name=<nom>		- Génère et applique les migrations d'un connecteur"
 	@echo "  memcached				- Démarre memcached dans le container"
