@@ -112,12 +112,38 @@ class ${CLASS_NAME}(BaseResource):
 EOF
 
 echo "✅ Connecteur créé dans ${DEST}"
+
+# --- Installation en mode développement ---
+echo "Installation en mode développement (pip install -e)..."
+docker exec publik-dev \
+    /home/publik/envs/publik-env-py3/bin/pip install -e \
+    "/home/publik/src/${PACKAGE_NAME}" --quiet
+
+# --- Ajout dans les settings ---
+SETTINGS_DIR="${SCRIPT_DIR}/data/config/publik/settings/passerelle/settings.d"
+SETTINGS_FILE="${SETTINGS_DIR}/${MODULE_NAME}.py"
+mkdir -p "$SETTINGS_DIR"
+echo "Création de ${SETTINGS_FILE}..."
+cat > "$SETTINGS_FILE" << EOF
+INSTALLED_APPS += ('${MODULE_NAME}',)
+TENANT_APPS += ('${MODULE_NAME}',)
+EOF
+
+# --- Génération des migrations ---
+echo "Génération des migrations (makemigrations)..."
+docker exec publik-dev \
+    /home/publik/envs/publik-env-py3/bin/passerelle-manage makemigrations "${MODULE_NAME}"
+
+# --- Application des migrations ---
+echo "Application des migrations (migrate_schemas)..."
+docker exec publik-dev \
+    /home/publik/envs/publik-env-py3/bin/passerelle-manage migrate_schemas --noinput
+
+# --- Redémarrage ---
+echo "Redémarrage de passerelle..."
+docker exec publik-dev sudo supervisorctl restart django:passerelle
+
 echo ""
-echo "Prochaines étapes :"
-echo "  1. Installer : docker exec publik-dev /home/publik/envs/publik-env-py3/bin/python -m pip install -e /home/publik/src/${PACKAGE_NAME}"
-echo "  2. Ajouter dans data/config/publik/settings/passerelle/settings.d/ :"
-echo "       INSTALLED_APPS += ('${MODULE_NAME}',)"
-echo "       TENANT_APPS += ('${MODULE_NAME}',)"
-echo "  3. Migrations : docker exec publik-dev /home/publik/envs/publik-env-py3/bin/passerelle-manage makemigrations ${MODULE_NAME}"
-echo "  4. Appliquer  : docker exec publik-dev /home/publik/envs/publik-env-py3/bin/passerelle-manage migrate_schemas"
-echo "  5. Redémarrer : docker exec publik-dev sudo supervisorctl restart django:passerelle"
+echo "✅ ${PACKAGE_NAME} installé et actif."
+echo "   Module  : ${MODULE_NAME}"
+echo "   Source  : ${DEST}"
