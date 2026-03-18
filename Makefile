@@ -1,4 +1,4 @@
-.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle help
+.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle install-passerelle help
 
 setup-imio: theme extra-cells fedict fields templatetags
 
@@ -29,6 +29,10 @@ create-passerelle:
 	@test -n "$(name)" || (echo "Erreur : spécifier un nom, ex: make create-passerelle name='liege taxes'"; exit 1)
 	./create_passerelle.sh "$(name)"
 
+install-passerelle:
+	@test -n "$(repo)" || (echo "Erreur : spécifier un repo, ex: make install-passerelle repo=git@github.com:IMIO/passerelle-imio-xxx.git"; exit 1)
+	./install_passerelle.sh "$(repo)"
+
 help:
 	@echo "Cibles disponibles :"
 	@echo "  setup-imio				- Installe un environement iMio"
@@ -40,3 +44,4 @@ help:
 	@echo "  fields				- Configure les champs iMio"
 	@echo "  templatetags				- Installe imio-teleservices-templatetags"
 	@echo "  create-passerelle name='mon nom'	- Crée un squelette de connecteur passerelle"
+	@echo "  install-passerelle repo=<url>		- Installe un connecteur existant depuis un repo git"
