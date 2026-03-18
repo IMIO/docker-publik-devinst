@@ -17,7 +17,6 @@ echo "Starting System Services..."
 sudo service postgresql start
 sudo service nginx start
 sudo service rabbitmq-server start
-sudo service memcached start
 
 echo "Waiting for RabbitMQ..."
 while ! sudo rabbitmqctl status > /dev/null 2>&1; do sleep 2; done
