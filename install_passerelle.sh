@@ -39,7 +39,7 @@ fi
 echo "Installation en mode développement (pip install -e)..."
 docker exec publik-dev \
     /home/publik/envs/publik-env-py3/bin/pip install -e \
-    "/home/publik/src/${PACKAGE_NAME}" --quiet
+    "/home/publik/src/${PACKAGE_NAME}" --no-deps --quiet
 
 # --- 3. Ajout dans les settings ---
 mkdir -p "$SETTINGS_DIR"
