@@ -1,6 +1,6 @@
-.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle install-passerelle migrate-passerelle memcached help
+.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle install-passerelle migrate-passerelle memcached industrialisation install-package help
 
-setup-imio: theme extra-cells fedict fields templatetags memcached
+setup-imio: theme extra-cells fedict fields templatetags memcached industrialisation
 
 theme:
 	./install_theme.sh
@@ -40,6 +40,13 @@ migrate-passerelle:
 memcached:
 	docker exec publik-dev sudo service memcached start
 
+industrialisation:
+	./install_industrialisation.sh
+
+install-package:
+	@test -n "$(name)" || (echo "Erreur : spécifier un nom, ex: make install-package name=teleservices-package-light"; exit 1)
+	./install_package.sh "$(name)"
+
 help:
 	@echo "Cibles disponibles :"
 	@echo "  setup-imio				- Installe un environement iMio"
@@ -54,3 +61,5 @@ help:
 	@echo "  install-passerelle repo=<url>		- Installe un connecteur existant depuis un repo git"
 	@echo "  migrate-passerelle name=<nom>		- Génère et applique les migrations d'un connecteur"
 	@echo "  memcached				- Démarre memcached dans le container"
+	@echo "  industrialisation			- Installe publik-imio-industrialisation (commandes imio_indus_deploy, has_role, imio_import_directory)"
+	@echo "  install-package name=<nom>		- Installe un package (ex: teleservices-package-light, ou url ssh)"
