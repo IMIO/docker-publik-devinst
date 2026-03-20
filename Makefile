@@ -1,4 +1,4 @@
-.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle install-passerelle migrate-passerelle memcached industrialisation install-package help
+.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle install-passerelle migrate-passerelle restart-passerelle memcached industrialisation install-package help
 
 setup-imio: theme extra-cells fedict fields templatetags memcached industrialisation
 
@@ -37,6 +37,9 @@ migrate-passerelle:
 	@test -n "$(name)" || (echo "Erreur : spécifier un nom, ex: make migrate-passerelle name=liege-taxes"; exit 1)
 	./migrate_passerelle.sh "$(name)"
 
+restart-passerelle:
+	docker exec publik-dev sudo supervisorctl restart django:passerelle
+
 memcached:
 	docker exec publik-dev sudo service memcached start
 
@@ -60,6 +63,7 @@ help:
 	@echo "  create-passerelle name='mon nom'	- Crée un squelette de connecteur passerelle"
 	@echo "  install-passerelle repo=<url>		- Installe un connecteur existant depuis un repo git"
 	@echo "  migrate-passerelle name=<nom>		- Génère et applique les migrations d'un connecteur"
+	@echo "  restart-passerelle			- Redémarre passerelle"
 	@echo "  memcached				- Démarre memcached dans le container"
 	@echo "  industrialisation			- Installe publik-imio-industrialisation (commandes imio_indus_deploy, has_role, imio_import_directory)"
 	@echo "  install-package name=<nom>		- Installe un package (nom complet: pas de pull si existant, url ssh: pull si existant)"
