@@ -49,3 +49,9 @@ TENANT_APPS += ('passerelle_imio_...',)
 
 ## Redémarrer passerelle
 `docker exec publik-dev sudo supervisorctl restart django:passerelle`
+
+# Bug
+## Le menu n'apparait pas correctement dans certaine brique
+dans la console du navigateur
+`localStorage.removeItem('gadjo_sidebar_menu')`
+Puis rechargez la page.
