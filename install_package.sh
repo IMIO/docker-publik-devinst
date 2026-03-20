@@ -16,9 +16,11 @@ INPUT="$1"
 if [[ "$INPUT" == git@* || "$INPUT" == https://* ]]; then
     REPO_URL="$INPUT"
     PACKAGE_NAME=$(basename "$REPO_URL" .git)
+    IS_URL=true
 else
     PACKAGE_NAME="$INPUT"
     REPO_URL="git@github.com:IMIO/${PACKAGE_NAME}.git"
+    IS_URL=false
 fi
 
 DEST="${SCRIPT_DIR}/data/src/${PACKAGE_NAME}"
@@ -28,8 +30,12 @@ MODULE_NAME=$(echo "$PACKAGE_NAME" | tr '-' '_')
 
 # --- 1. Clone ou mise à jour ---
 if [ -d "$DEST" ]; then
-    echo "⚠️  Le dossier ${DEST} existe déjà, mise à jour (git pull)..."
-    git -C "$DEST" pull
+    if [ "$IS_URL" = true ]; then
+        echo "⚠️  Le dossier ${DEST} existe déjà, mise à jour (git pull)..."
+        git -C "$DEST" pull
+    else
+        echo "⏩ Le dossier ${DEST} existe déjà, pas de mise à jour."
+    fi
 else
     echo "Clonage de ${REPO_URL}..."
     git clone "$REPO_URL" "$DEST"
@@ -41,10 +47,15 @@ if [ ! -d "$CONTENT_DIR" ]; then
     exit 1
 fi
 
-# --- 2. Patch des JSON combo (champs manquants pour la version actuelle de combo) ---
-if [ -d "${CONTENT_DIR}/combo" ]; then
-    echo "Patch des fichiers combo JSON (last_update_timestamp, uuid)..."
-    python3 - "${CONTENT_DIR}/combo" << 'EOF'
+# --- 2. Copie temporaire pour ne pas modifier les fichiers originaux ---
+TMP_DIR=$(mktemp -d)
+trap "rm -rf '${TMP_DIR}'" EXIT
+
+cp -r "${CONTENT_DIR}/." "${TMP_DIR}/"
+
+if [ -d "${TMP_DIR}/combo" ]; then
+    echo "Patch des fichiers combo JSON (last_update_timestamp, uuid) sur copie temporaire..."
+    python3 - "${TMP_DIR}/combo" << 'EOF'
 import json, uuid, sys, os
 from datetime import datetime, timezone
 
@@ -84,11 +95,14 @@ HOBO_TENANT=$(docker exec publik-dev \
     | grep -v RequestsDependency | grep -v warnings.warn | grep -v urllib3 \
     | awk '{print $2}' | head -1)
 
+docker cp "${TMP_DIR}" publik-dev:/tmp/package_import
+
 docker exec publik-dev \
     /home/publik/envs/publik-env-py3/bin/hobo-manage imio_indus_deploy \
     -d "$HOBO_TENANT" \
-    --directory "/home/publik/src/${PACKAGE_NAME}/${MODULE_NAME}" \
-    2>&1 | grep -v RequestsDependencyWarning | grep -v warnings.warn | grep -v urllib3
+    --directory "/tmp/package_import"
+
+docker exec publik-dev rm -rf /tmp/package_import
 
 echo ""
 echo "✅ ${PACKAGE_NAME} installé."

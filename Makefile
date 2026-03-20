@@ -62,4 +62,4 @@ help:
 	@echo "  migrate-passerelle name=<nom>		- Génère et applique les migrations d'un connecteur"
 	@echo "  memcached				- Démarre memcached dans le container"
 	@echo "  industrialisation			- Installe publik-imio-industrialisation (commandes imio_indus_deploy, has_role, imio_import_directory)"
-	@echo "  install-package name=<nom>		- Installe un package (ex: teleservices-package-light, ou url ssh)"
+	@echo "  install-package name=<nom>		- Installe un package (nom complet: pas de pull si existant, url ssh: pull si existant)"
