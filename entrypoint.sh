@@ -14,9 +14,9 @@ echo "Fixing permissions..."
 sudo chown -R publik:publik /home/publik/.config /home/publik/envs /home/publik/src
 
 echo "Starting System Services..."
-sudo service postgresql start
-sudo service nginx start
-sudo service rabbitmq-server start
+sudo service postgresql start || sudo service postgresql status
+sudo service nginx start || sudo service nginx status
+sudo service rabbitmq-server start || sudo service rabbitmq-server status
 
 echo "Waiting for RabbitMQ..."
 while ! sudo rabbitmqctl status > /dev/null 2>&1; do sleep 2; done
