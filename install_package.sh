@@ -13,6 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Résolution du repo : nom complet ou URL SSH
 INPUT="$1"
+BRANCH="${2:-}"
 if [[ "$INPUT" == git@* || "$INPUT" == https://* ]]; then
     REPO_URL="$INPUT"
     PACKAGE_NAME=$(basename "$REPO_URL" .git)
@@ -32,13 +33,20 @@ MODULE_NAME=$(echo "$PACKAGE_NAME" | tr '-' '_')
 if [ -d "$DEST" ]; then
     if [ "$IS_URL" = true ]; then
         echo "⚠️  Le dossier ${DEST} existe déjà, mise à jour (git pull)..."
+        if [ -n "$BRANCH" ]; then
+            git -C "$DEST" checkout "$BRANCH"
+        fi
         git -C "$DEST" pull
     else
         echo "⏩ Le dossier ${DEST} existe déjà, pas de mise à jour."
     fi
 else
     echo "Clonage de ${REPO_URL}..."
-    git clone "$REPO_URL" "$DEST"
+    if [ -n "$BRANCH" ]; then
+        git clone --branch "$BRANCH" "$REPO_URL" "$DEST"
+    else
+        git clone "$REPO_URL" "$DEST"
+    fi
 fi
 
 CONTENT_DIR="${DEST}/${MODULE_NAME}"

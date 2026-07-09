@@ -8,6 +8,7 @@ if [ -z "$1" ]; then
 fi
 
 REPO_URL="$1"
+BRANCH="${2:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Extrait le nom du package depuis l'URL (ex: passerelle-imio-liege-taxes)
@@ -29,10 +30,17 @@ SETTINGS_FILE="${SETTINGS_DIR}/${MODULE_NAME}.py"
 # --- 1. Clone ---
 if [ -d "$DEST" ]; then
     echo "⚠️  Le dossier ${DEST} existe déjà, mise à jour (git pull)..."
+    if [ -n "$BRANCH" ]; then
+        git -C "$DEST" checkout "$BRANCH"
+    fi
     git -C "$DEST" pull
 else
     echo "Clonage de ${REPO_URL}..."
-    git clone "$REPO_URL" "$DEST"
+    if [ -n "$BRANCH" ]; then
+        git clone --branch "$BRANCH" "$REPO_URL" "$DEST"
+    else
+        git clone "$REPO_URL" "$DEST"
+    fi
 fi
 
 # --- 2. Installation en mode développement ---
