@@ -16,10 +16,12 @@ sudo chown -R publik:publik /home/publik/.config /home/publik/envs /home/publik/
 echo "Starting System Services..."
 sudo service postgresql start || sudo service postgresql status
 sudo service nginx start || sudo service nginx status
-sudo service rabbitmq-server start || sudo service rabbitmq-server status
+sudo service rabbitmq-server start 2>/dev/null || true
 
-echo "Waiting for RabbitMQ..."
-while ! sudo rabbitmqctl status > /dev/null 2>&1; do sleep 2; done
+if command -v rabbitmqctl > /dev/null 2>&1; then
+    echo "Waiting for RabbitMQ..."
+    while ! sudo rabbitmqctl status > /dev/null 2>&1; do sleep 2; done
+fi
 
 # --- 2. INSTALLATION (UNIQUEMENT SI PAS ENCORE FAIT) ---
 DIR_SRC="/home/publik/src/publik-devinst"
@@ -57,6 +59,13 @@ else
 fi
 
 # --- 3. DÉMARRAGE DES APPLICATIFS ---
+# memcached est installé par ansible (étape 2), il n'existe donc pas dans l'image de base :
+# on le démarre ici pour couvrir aussi bien la première installation que les "docker start".
+if [ -x /etc/init.d/memcached ]; then
+    echo "Starting memcached..."
+    sudo service memcached start || sudo service memcached status
+fi
+
 echo "Starting Supervisord..."
 sudo /usr/bin/supervisord -c /etc/supervisor/supervisord.conf --nodaemon &
 SUPERVISORD_PID=$!
