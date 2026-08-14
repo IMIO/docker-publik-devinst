@@ -31,15 +31,7 @@ docker exec publik-dev cp /home/publik/src/publik-imio-industrialisation/wcs/has
 
 echo "hobo: OK | combo: OK | wcs: OK"
 
-# --- 3. Patch de l'import cassé dans imio_indus_deploy.py ---
-# hobo.agent.worker n'existe plus, les settings MANAGE_COMMAND sont dans django.conf.settings
-DEPLOY_CMD="${HOBO_CMD_DIR}/imio_indus_deploy.py"
-docker exec publik-dev sed -i \
-    's/from hobo\.agent\.worker import settings as agent_settings/from django.conf import settings as agent_settings/' \
-    "$DEPLOY_CMD"
-echo "Patch imio_indus_deploy.py: OK"
-
-# --- 4. Vérification ---
+# --- 3. Vérification ---
 echo ""
 echo "Vérification des commandes disponibles..."
 docker exec publik-dev bash -c "
