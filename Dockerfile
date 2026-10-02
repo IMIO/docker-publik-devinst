@@ -1,4 +1,4 @@
-FROM debian:12
+FROM debian:13
 
 # 1. Installation des dépendances de base (Ajout de rabbitmq-server)
 ENV DEBIAN_FRONTEND=noninteractive
