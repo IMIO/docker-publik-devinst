@@ -165,3 +165,56 @@ JSON_CELL_TYPES.update(
       }
    }
 ) 
+
+
+JSON_CELL_TYPES.update(
+   {
+    "actualites": {
+        "cache_duration": 15,
+        "force_async": False,
+        "form": [
+            {
+                "label": "Identifiant du connecteur Plone REST API",
+                "type": "string",
+                "varname": "connector"
+            },
+            {
+                "label": "Identifiant de la requ\u00eate",
+                "type": "string",
+                "varname": "query"
+            }
+        ],
+        "name": "Actualit\u00e9s",
+        "log_errors": False,
+        "url": "{{ passerelle_url }}plone-restapi/{{ connector }}/q/{{ query }}/"
+    },
+    "deliberations-communales": {
+        "cache_duration": 15,
+        "force_async": False,
+        "name": "D\u00e9lib\u00e9rations communales",
+        "log_errors": False,
+        "url": "{{ passerelle_url }}plone-restapi/deliberations/q/deliberations/"
+    },
+    "evenements": {
+        "cache_duration": 15,
+        "force_async": False,
+        "form": [
+            {
+                "label": "Identifiant du connecteur Plone REST API",
+                "type": "string",
+                "varname": "connector"
+            },
+            {
+                "label": "Identifiant de la requ\u00eate",
+                "type": "string",
+                "varname": "query"
+            }
+        ],
+        "name": "\u00c9v\u00e9nements",
+        "log_errors": False,
+        "url": "{{ passerelle_url }}plone-restapi/{{ connector }}/q/{{ query }}/"
+    }
+   }
+)
+
+COMBO_DASHBOARD_ENABLED = True
