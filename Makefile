@@ -1,6 +1,6 @@
-.PHONY: setup-imio theme update-theme extra-cells update-extra-cells fedict fields templatetags create-passerelle install-passerelle migrate-passerelle restart-passerelle memcached renew-certificate industrialisation install-package change-branch help
+.PHONY: setup-imio theme update-theme extra-cells update-extra-cells logging logs fedict fields templatetags create-passerelle install-passerelle migrate-passerelle restart-passerelle memcached renew-certificate industrialisation install-package change-branch help
 
-setup-imio: theme extra-cells fedict fields templatetags memcached industrialisation
+setup-imio: theme extra-cells logging fedict fields templatetags memcached industrialisation
 
 theme:
 	./install_theme.sh
@@ -15,6 +15,12 @@ extra-cells:
 update-extra-cells:
 	cp extra_cells.py data/config/publik/settings/combo/settings.d/extra_cells.py
 	docker exec publik-dev sudo supervisorctl restart django:combo
+
+logging:
+	./install_logging.sh
+
+logs:
+	docker exec publik-dev sh -c 'tail -f /var/log/$(or $(app),*)/stderr.log'
 
 fedict:
 	./install_fedict.sh
@@ -67,6 +73,8 @@ help:
 	@echo "  update-theme				- Met à jour imio-publik-themes"
 	@echo "  extra-cells				- Installe extra_cells pour combo"
 	@echo "  update-extra-cells			- Met à jour extra_cells pour combo"
+	@echo "  logging				- Horodate les logs et y ajoute les logs applicatifs"
+	@echo "  logs [app=<appli>]			- Suit les logs (toutes les briques, ou une seule ex: app=passerelle)"
 	@echo "  fedict				- Installe authentic2-auth-fedict"
 	@echo "  fields				- Configure les champs iMio"
 	@echo "  templatetags				- Installe imio-teleservices-templatetags"
