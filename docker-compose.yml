@@ -15,3 +15,10 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "10500:8025"   # interface web
+      - "10501:1025"   # SMTP
+    restart: unless-stopped
