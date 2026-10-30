@@ -1,6 +1,6 @@
 .PHONY: setup-imio theme update-theme extra-cells update-extra-cells logging logs fedict fields templatetags create-passerelle install-passerelle migrate-passerelle restart-passerelle memcached renew-certificate industrialisation install-package change-branch help
 
-setup-imio: theme extra-cells logging fedict fields templatetags memcached industrialisation
+setup-imio: theme extra-cells logging mailpit fedict fields templatetags memcached industrialisation
 
 theme:
 	./install_theme.sh
@@ -21,6 +21,9 @@ logging:
 
 logs:
 	docker exec publik-dev sh -c 'tail -f /var/log/$(or $(app),*)/stderr.log'
+
+mailpit:
+	./install_mailpit.sh
 
 fedict:
 	./install_fedict.sh
@@ -75,6 +78,7 @@ help:
 	@echo "  update-extra-cells			- Met à jour extra_cells pour combo"
 	@echo "  logging				- Horodate les logs et y ajoute les logs applicatifs"
 	@echo "  logs [app=<appli>]			- Suit les logs (toutes les briques, ou une seule ex: app=passerelle)"
+	@echo "  mailpit				- Intercepte les mails des briques dans Mailpit (http://localhost:10500)"
 	@echo "  fedict				- Installe authentic2-auth-fedict"
 	@echo "  fields				- Configure les champs iMio"
 	@echo "  templatetags				- Installe imio-teleservices-templatetags"

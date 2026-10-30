@@ -18,6 +18,9 @@ Démarrer :
 
 Une fois le build terminé, lancer la commande de suivi de log pour voir le make install et make deploy. Une fois les services démarrés `wcs entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)` vous pouvez aller sur `https://combo.dev.publik.love/manage/`
 
+# Mails (Mailpit)
+`make mailpit` (inclus dans `make setup-imio`) dirige les mails de toutes les briques vers le service `mailpit` du `docker-compose.yml` : interface sur http://localhost:10500, SMTP sur `localhost:10501` (`mailpit:1025` depuis le conteneur). Utile pour la création de compte, la réinitialisation de mot de passe et les notifications.
+
 # Librairie dans Pycharm
 ## Lier la venv
 La venv est créée dans le conteneur (Debian 13, Python 3.13). Ses liens `python3`/`python3.13` pointent vers `/usr/bin/python3` du conteneur : sur l'hôte, ce binaire doit aussi être en 3.13, sinon le `site-packages` de la venv (`lib/python3.13/`) n'est pas trouvé et PyCharm ne reconnaît pas django, requests, etc.
